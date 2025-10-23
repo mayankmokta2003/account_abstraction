@@ -20,10 +20,11 @@ contract HelperConfig is Script {
     uint256 constant ZKSYNC_SEPOLIA_CHAIN_ID = 300;
     uint256 constant LOCAL_CHAIN_ID = 31337;
     address constant BURNER_WALLET = 0x7eb5b82F7754CAd509a8d13fB4092E1Fc77Ee951;
+    address constant ANVIL_DEFAULT_ACCOUNT = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
-    constructor() {
-        NetworkConfigs[11155111] = getEthSepoliaConfig();
-    }
+    // constructor() {
+    //     NetworkConfigs[11155111] = getEthSepoliaConfig();
+    // }
 
     function getConfig() public returns (NetworkConfig memory) {
         return getConfigByChainId(block.chainid);
@@ -51,10 +52,12 @@ contract HelperConfig is Script {
         if (localNetworkConfig.account != address(0)) {
             return localNetworkConfig;
         }
-        vm.startBroadcast();
+        vm.startBroadcast(ANVIL_DEFAULT_ACCOUNT);
         EntryPoint entryPoint = new EntryPoint();
         vm.stopBroadcast();
-        return NetworkConfig({entryPoint: address(entryPoint), account: 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38});
+
+        localNetworkConfig = NetworkConfig({entryPoint: address(entryPoint), account: ANVIL_DEFAULT_ACCOUNT});
+        return localNetworkConfig;
     }
 }
 

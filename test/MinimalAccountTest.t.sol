@@ -33,8 +33,6 @@ contract MinimalAccountTest is Test {
     }
 
     function testOwnerCanExecuteCommands() public {
-
-
         address dest = address(usdc);
         uint256 value = 0;
         bytes memory functionData = abi.encodeWithSelector(usdc.mint.selector, address(minimalAccount), amount);
@@ -44,8 +42,6 @@ contract MinimalAccountTest is Test {
     }
 
     function testOnlyOwnerCanExecuteCommands() public {
-
-
         address dest = address(usdc);
         uint256 value = 0;
         bytes memory func = abi.encodeWithSelector(usdc.mint.selector, address(minimalAccount), amount);
@@ -55,7 +51,8 @@ contract MinimalAccountTest is Test {
     }
 
     // here we are actually testing our sendPackedUserOps script file
-    function testValidationOfUserOps() public {
+    // here we are testing that the signer is the owner of the transiction or contract.
+    function testRecoverSignedOp() public {
         // Arrange
         address dest = address(usdc);
         uint256 value = 0;
@@ -63,7 +60,7 @@ contract MinimalAccountTest is Test {
         // now in order to send this to our contract we again encode this whole data and execute function
         // itss like we are forwarding a call here.
         bytes memory executeCallData = abi.encodeWithSelector(MinimalAccount.execute.selector,dest,value,func);
-        PackedUserOperation memory packedUserOp = sendpackedUserOp.generatedSignedUserOperation(executeCallData,helperConfig.getConfig());
+        PackedUserOperation memory packedUserOp = sendpackedUserOp.generatedSignedUserOperation(executeCallData,helperConfig.getConfig(),address(minimalAccount));
         // lets hash this as well
         bytes32 userOperationHash = IEntryPoint(helperConfig.getConfig().entryPoint).getUserOpHash(packedUserOp);
         // Act
@@ -71,9 +68,49 @@ contract MinimalAccountTest is Test {
 
         // Assert
         assertEq(actualSigner,minimalAccount.owner());
-
+ 
     }
 
     // here for this function test we will crete sendPacketUserOp in script as the fn validateUserOp has
     // PackedUserOperation in parameter so we need to do a lot
+    // here we are testion our that our entrypoint is getting data properly and is verifying.
+    function testValidationOfUserOpss() public {
+        address dest = address(usdc);
+        uint256 value = 0;
+        bytes memory func = abi.encodeWithSelector(usdc.mint.selector,address(minimalAccount),amount);
+        bytes memory executeCallData = abi.encodeWithSelector(MinimalAccount.execute.selector,dest,value,func);
+
+        PackedUserOperation memory packedUserOp = sendpackedUserOp.generatedSignedUserOperation(executeCallData,helperConfig.getConfig(),address(minimalAccount));
+        bytes32 userOperationHash = IEntryPoint(helperConfig.getConfig().entryPoint).getUserOpHash(packedUserOp);
+        uint256 missingAccountFunds = 1e18;
+
+        // vm.prank(minimalAccount.Owner());
+        vm.prank(helperConfig.getConfig().entryPoint);
+        uint256 validationData = minimalAccount.validateUserOp(packedUserOp,userOperationHash,missingAccountFunds);
+        assertEq(validationData,0);
+
+    }
+
+
+    function testEntryPointCanExecuteCommands() public {
+
+        address dest = address(usdc);
+        uint256 value = 0;
+        bytes memory func = abi.encodeWithSelector(usdc.mint.selector,address(minimalAccount),amount);
+        bytes memory executeCallData = abi.encodeWithSelector(MinimalAccount.execute.selector,dest,value,func);
+        PackedUserOperation memory packedUserOp = sendpackedUserOp.generatedSignedUserOperation(executeCallData,helperConfig.getConfig(),address(minimalAccount));
+
+        vm.deal(address(minimalAccount),1e18);
+        PackedUserOperation[] memory ops = new PackedUserOperation[](1);
+        ops[0] = packedUserOp;
+        // here this random user is the bundler like we send gas fee to this randomuser and he sends this
+        // fees to the entrypoint and then the entrypoint verifies all things and calls execute.
+        vm.prank(randomUser);
+
+        IEntryPoint(helperConfig.getConfig().entryPoint).handleOps(ops,payable(randomUser));
+        assertEq(usdc.balanceOf(address(minimalAccount)),amount);
+    }
+
+
+
 }
