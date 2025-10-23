@@ -2,7 +2,11 @@
 
 pragma solidity ^0.8.18;
 
-import {IAccount} from "../../lib/account-abstraction/contracts/interfaces/IAccount.sol";
+  ////////////////////////////////////////////////////////////////////////////////////
+ /// signs data => alt-memepool nodes => entryPoint => our contract => blockchain ///
+////////////////////////////////////////////////////////////////////////////////////
+
+// import {IAccount} from "../../lib/account-abstraction/contracts/interfaces/IAccount.sol";
 import {PackedUserOperation} from "../../lib/account-abstraction/contracts/interfaces/PackedUserOperation.sol";
 import {Ownable} from "../../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 import {ECDSA} from "../../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";

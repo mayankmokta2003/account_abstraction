@@ -9,7 +9,7 @@ import {HelperConfig} from "./DeployMinimal.s.sol";
 import {IEntryPoint} from "../lib/account-abstraction/contracts/interfaces/IEntryPoint.sol";
 import {MessageHashUtils} from "../lib/openzeppelin-contracts/contracts/utils/cryptography/MessageHashUtils.sol";
 
-contract DeployMinimal is Script {
+contract SendpackedUserOp is Script {
 
     function run() external {}
 
