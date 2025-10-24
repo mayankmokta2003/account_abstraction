@@ -10,13 +10,13 @@ import {IEntryPoint} from "../lib/account-abstraction/contracts/interfaces/IEntr
 import {MessageHashUtils} from "../lib/openzeppelin-contracts/contracts/utils/cryptography/MessageHashUtils.sol";
 
 contract SendpackedUserOp is Script {
-
     function run() external {}
 
-    function generatedSignedUserOperation(bytes calldata callData, HelperConfig.NetworkConfig memory config,address minimalAccount)
-        public view
-        returns (PackedUserOperation memory)
-    {
+    function generatedSignedUserOperation(
+        bytes calldata callData,
+        HelperConfig.NetworkConfig memory config,
+        address minimalAccount
+    ) public view returns (PackedUserOperation memory) {
         uint256 nonce = vm.getNonce(config.account);
         // 1. generate the unsigned data.
         PackedUserOperation memory userOp = generatedUnsignedUserOperation(callData, minimalAccount, nonce);
@@ -26,14 +26,16 @@ contract SendpackedUserOp is Script {
         bytes32 digest = MessageHashUtils.toEthSignedMessageHash(userOpHash);
         // 3. Sign it.
         uint256 ANVIL_DEFAULT_KEY = 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80;
-        uint8 v; bytes32 r; bytes32 s;
-        if(block.chainid == 31337){
-            (v,r,s) = vm.sign(ANVIL_DEFAULT_KEY,digest);
-        }else{
-            (v,r,s) = vm.sign(config.account,digest);
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+        if (block.chainid == 31337) {
+            (v, r, s) = vm.sign(ANVIL_DEFAULT_KEY, digest);
+        } else {
+            (v, r, s) = vm.sign(config.account, digest);
         }
-        userOp.signature = abi.encodePacked(r,s,v); //note the order.
-        return(userOp);
+        userOp.signature = abi.encodePacked(r, s, v); //note the order.
+        return (userOp);
     }
 
     function generatedUnsignedUserOperation(bytes memory callData, address sender, uint256 nonce)
