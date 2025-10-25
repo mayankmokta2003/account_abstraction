@@ -3,15 +3,15 @@
 pragma solidity ^0.8.18;
 
 import {Test} from "forge-std/Test.sol";
-import {MinimalAccount} from "../src/ethereum/MinimalAccount.sol";
-import {DeployMinimal} from "../script/DeployMinimal.s.sol";
-import {HelperConfig} from "../script/HelperConfig.s.sol";
-import {ERC20Mock} from "../lib/openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol";
-import {SendpackedUserOp} from "../script/SendPackedUserOp.s.sol";
-import {ECDSA} from "../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
-import {MessageHashUtils} from "../lib/openzeppelin-contracts/contracts/utils/cryptography/MessageHashUtils.sol";
-import {PackedUserOperation} from "../lib/account-abstraction/contracts/interfaces/PackedUserOperation.sol";
-import {IEntryPoint} from "../lib/account-abstraction/contracts/interfaces/IEntryPoint.sol";
+import {MinimalAccount} from "../../src/ethereum/MinimalAccount.sol";
+import {DeployMinimal} from "../../script/DeployMinimal.s.sol";
+import {HelperConfig} from "../../script/HelperConfig.s.sol";
+import {ERC20Mock} from "../../lib/openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol";
+import {SendpackedUserOp} from "../../script/SendPackedUserOp.s.sol";
+import {ECDSA} from "../../lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
+import {MessageHashUtils} from "../../lib/openzeppelin-contracts/contracts/utils/cryptography/MessageHashUtils.sol";
+import {PackedUserOperation} from "../../lib/account-abstraction/contracts/interfaces/PackedUserOperation.sol";
+import {IEntryPoint} from "../../lib/account-abstraction/contracts/interfaces/IEntryPoint.sol";
 
 contract MinimalAccountTest is Test {
     using MessageHashUtils for bytes32;

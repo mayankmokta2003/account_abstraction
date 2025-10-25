@@ -4,7 +4,7 @@ out = "out"
 libs = ["lib"]
 viaIR = true
 optimizer = true
-
+via-ir = true
 is-system = true
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
