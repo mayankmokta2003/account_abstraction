@@ -51,6 +51,7 @@ contract ZkMinimalAccount is IAccount, Ownable {
     error ZkMinimalAccount__NotFromBootLoader();
     error ZkMinimalAccount__ExecutionFailed();
     error ZkMinimalAccount__NotFromBootLoaderOrOwner();
+    error ZkMinimalAccount__FailedToPay();
 
     modifier requireFromBootLoader() {
         if (msg.sender != BOOTLOADER_FORMAL_ADDRESS) {
@@ -66,9 +67,9 @@ contract ZkMinimalAccount is IAccount, Ownable {
         _;
     }
 
-
-
     constructor() Ownable(msg.sender) {}
+
+    receive() external payable{}
 
     function validateTransaction(bytes32 _txHash, bytes32 _suggestedSignedHash, Transaction memory _transaction)
         external
@@ -76,8 +77,48 @@ contract ZkMinimalAccount is IAccount, Ownable {
         requireFromBootLoader
         returns (bytes4 magic)
     {
-        // 1.must increase the nonce
-        SystemContractsCaller.systemCallWithPropagatedRevert(
+       magic =  _validateTransaction(_transaction);
+        
+    }
+
+
+
+    function executeTransaction(bytes32 _txHash, bytes32 _suggestedSignedHash, Transaction memory _transaction)
+        external
+        payable requireFromBootLoaderOrOwner {
+        _executeTransaction(_transaction);
+        }
+
+
+
+    function executeTransactionFromOutside(Transaction memory _transaction) external payable { 
+        bytes4 magic =  _validateTransaction(_transaction);
+        _executeTransaction(_transaction);
+    }
+
+
+
+
+    function payForTransaction(bytes32 _txHash, bytes32 _suggestedSignedHash, Transaction memory _transaction)
+        external
+        payable {
+            (bool success) = MemoryTransactionHelper.payToTheBootloader(_transaction);
+            if(!success){
+                revert ZkMinimalAccount__FailedToPay();
+            }
+        }
+
+
+
+    function prepareForPaymaster(bytes32 _txHash, bytes32 _possibleSignedHash, Transaction memory _transaction)
+        external
+        payable {}
+
+
+
+        function _validateTransaction(Transaction memory _transaction) internal returns(bytes4 magic) {
+            // 1.must increase the nonce
+            SystemContractsCaller.systemCallWithPropagatedRevert(
             uint32(gasleft()),
             address(NONCE_HOLDER_SYSTEM_CONTRACT), // address of nonce
             0,
@@ -99,11 +140,13 @@ contract ZkMinimalAccount is IAccount, Ownable {
             magic = bytes4(0);
         }
         return magic;
-    }
+        }
 
-    function executeTransaction(bytes32 _txHash, bytes32 _suggestedSignedHash, Transaction memory _transaction)
-        external
-        payable requireFromBootLoaderOrOwner {
+
+
+
+        function _executeTransaction(Transaction memory _transaction) internal {
+
         address to = address(uint160(_transaction.to));
         // we will make value uint128 as we might use value as a system contract call and it takes uint128
         // zksync interally supports 128bits value and we could have done smt like uint128(_transaction.value)
@@ -126,18 +169,13 @@ contract ZkMinimalAccount is IAccount, Ownable {
             revert ZkMinimalAccount__ExecutionFailed();
         }
         }
-
-
         }
 
-    function executeTransactionFromOutside(Transaction memory _transaction) external payable { 
-    }
 
-    function payForTransaction(bytes32 _txHash, bytes32 _suggestedSignedHash, Transaction memory _transaction)
-        external
-        payable {}
 
-    function prepareForPaymaster(bytes32 _txHash, bytes32 _possibleSignedHash, Transaction memory _transaction)
-        external
-        payable {}
+
+
+
+
+
 }

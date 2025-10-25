@@ -88,3 +88,34 @@ contract MinimalAccount is Ownable {
         return address(i_entryPoint);
     }
 }
+
+
+
+
+
+/*
+
+
+
+
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+# ignore Ethereum-specific contracts during zkSync builds
+ignored_paths = ["lib/account-abstraction", "src/ethereum"]
+is-system = true
+
+[profile.eth]
+src = "src/ethereum"
+out = "out"
+libs = ["lib"]
+
+[profile.zk]
+src = "src/zksync"
+out = "out"
+libs = ["lib"]
+
+
+
+*/
