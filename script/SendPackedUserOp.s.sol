@@ -3,7 +3,7 @@
 pragma solidity ^0.8.18;
 
 import {Script} from "forge-std/Script.sol";
-import {MinimalAccount} from "../src/ethereum/MinimalAccount.sol";
+// import {MinimalAccount} from "../src/ethereum/MinimalAccount.sol";
 import {PackedUserOperation} from "../lib/account-abstraction/contracts/interfaces/PackedUserOperation.sol";
 import {HelperConfig} from "./DeployMinimal.s.sol";
 import {IEntryPoint} from "../lib/account-abstraction/contracts/interfaces/IEntryPoint.sol";

@@ -11,7 +11,7 @@ contract HelperConfig is Script {
 
     struct NetworkConfig {
         address entryPoint;
-        address account;
+        address account;//this is the signer eg: my metamask account
     }
     NetworkConfig public localNetworkConfig;
 

@@ -33,10 +33,10 @@ contract MinimalAccountTest is Test {
     function testOwnerCanExecuteCommands() public {
         address dest = address(usdc);
         uint256 value = 0;
-        bytes memory functionData = abi.encodeWithSelector(usdc.mint.selector, address(minimalAccount), amount);
+        bytes memory functionData = abi.encodeCall(usdc.mint, (address(minimalAccount), amount));
         vm.prank(minimalAccount.owner());
         minimalAccount.execute(dest, value, functionData);
-        assertEq(usdc.balanceOf(address(minimalAccount)), amount);
+        assertEq(usdc.balanceOf(address(minimalAccount)), amount+value);
     }
 
     function testOnlyOwnerCanExecuteCommands() public {
@@ -84,7 +84,6 @@ contract MinimalAccountTest is Test {
         );
         bytes32 userOperationHash = IEntryPoint(helperConfig.getConfig().entryPoint).getUserOpHash(packedUserOp);
         uint256 missingAccountFunds = 1e18;
-
         // vm.prank(minimalAccount.Owner());
         vm.prank(helperConfig.getConfig().entryPoint);
         uint256 validationData = minimalAccount.validateUserOp(packedUserOp, userOperationHash, missingAccountFunds);
@@ -92,7 +91,6 @@ contract MinimalAccountTest is Test {
     }
 
     function testEntryPointCanExecuteCommands() public {
-
 
         address dest = address(usdc);
         uint256 value = 0;
@@ -108,7 +106,8 @@ contract MinimalAccountTest is Test {
         // here this random user is the bundler like we send gas fee to this randomuser and he sends this
         // fees to the entrypoint and then the entrypoint verifies all things and calls execute.
         vm.prank(randomUser);
-
+        // this handleops lets bundler to pay gas to entrypoint and after execution we pay to entrypoint
+        // and entrypoint refunds this bunder which is in altmenpool.
         IEntryPoint(helperConfig.getConfig().entryPoint).handleOps(ops, payable(randomUser));
         assertEq(usdc.balanceOf(address(minimalAccount)), amount);
     }

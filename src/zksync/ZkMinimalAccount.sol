@@ -118,12 +118,15 @@ contract ZkMinimalAccount is IAccount, Ownable {
 
         function _validateTransaction(Transaction memory _transaction) internal returns(bytes4 magic) {
             // 1.must increase the nonce
+            if(block.chainid != 300){
+            }else{
             SystemContractsCaller.systemCallWithPropagatedRevert(
             uint32(gasleft()),
             address(NONCE_HOLDER_SYSTEM_CONTRACT), // address of nonce
             0,
             abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (_transaction.nonce))
         );
+            }
         // check for fee to pay
         uint256 totalRequiredBalance = MemoryTransactionHelper.totalRequiredBalance(_transaction);
         if (totalRequiredBalance > address(this).balance) {
@@ -141,6 +144,8 @@ contract ZkMinimalAccount is IAccount, Ownable {
         }
         return magic;
         }
+
+
 
 
 
